@@ -389,7 +389,7 @@ static constexpr const char index_html3[] PROGMEM = R"rawliteral(;
                     onclick="loadSSID();"
                   >
                     <svg
-                      xmlns="http://www.w3.org/2000/svg"
+                      xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"
                       id="refresh-icon"
                       style="vertical-align: -0.125em"
                       width="1em"
@@ -462,7 +462,7 @@ static constexpr const char index_html3[] PROGMEM = R"rawliteral(;
                 onclick="togglePassShow();"
               >
                 <svg
-                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"
                   style="vertical-align: -0.125em"
                   width="1em"
                   height="1em"
@@ -494,6 +494,84 @@ static constexpr const char index_html3[] PROGMEM = R"rawliteral(;
           </div>
           <div id="error-code-message" class="error-message"></div>
         </div>
+)rawliteral";
+// INPUT_NAME
+static constexpr const char index_html8[] PROGMEM =
+    R"rawliteral(`;
+      const input_lenght = )rawliteral";
+// INPUT_LENGHT
+
+// --- Split index_html9 into two parts ---
+static constexpr const char index_html9_part1[] PROGMEM =
+    R"rawliteral(;)rawliteral";
+
+// --- New HTML blocks for username and service password ---
+static constexpr const char index_html9_username_block[] PROGMEM = R"rawliteral(
+        <div class="container" id="loginFieldsBlock" style="display: none">
+          <div style="text-align: center">
+            <label id="label-username" for="username"></label>
+          </div>
+          <div id="error-username-input">
+            <input
+              type="text"
+              name="username"
+              id="username"
+              class="textinput"
+              placeholder=""
+            />
+          </div>
+          <div id="error-username-message" class="error-message"></div>
+        </div>
+)rawliteral";
+
+static constexpr const char index_html9_service_password_block[] PROGMEM =
+    R"rawliteral(
+        <div class="container" id="servicePasswordBlock" style="display: none">
+          <label id="label-service-password" for="service_password">Network Password</label>
+          <div id="error-service_password-input">
+            <input
+              type="password"
+              name="service_password"
+              id="service_password"
+              style="position: relative"
+              class="textinput"
+              placeholder=""
+            />
+            <i
+              style="
+                margin-left: -1.25rem;
+                position: absolute;
+                margin-top: 0.5625rem;
+                padding: 0rem;
+              "
+              ><button
+                class="icon_button"
+                type="button"
+                style="padding: 0rem"
+                onclick="toggleServicePassShow();"
+              >
+                <svg
+                  xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"
+                  style="vertical-align: -0.125em"
+                  width="1em"
+                  height="1em"
+                  preserveaspectratio="xMidYMid meet"
+                  viewbox="0 0 24 24"
+                >
+                  <path
+                    id="service_eye_icon"
+                    fill="var(--font-color)"
+                    d="M10.94 6.08A6.93 6.93 0 0 1 12 6c3.18 0 6.17 2.29 7.91 6a15.23 15.23 0 0 1-.9 1.64a1 1 0 0 0-.16.55a1 1 0 0 0 1.86.5a15.77 15.77 0 0 0 1.21-2.3a1 1 0 0 0 0-.79C19.9 6.91 16.1 4 12 4a7.77 7.77 0 0 0-1.4.12a1 1 0 1 0 .34 2ZM3.71 2.29a1 1 0 0 0-1.42 1.42l3.1 3.09a14.62 14.62 0 0 0-3.31 4.8a1 1 0 0 0 0 .8C4.1 17.09 7.9 20 12 20a9.26 9.26 0 0 0 5.05-1.54l3.24 3.25a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.42Zm6.36 9.19l2.45 2.45A1.81 1.81 0 0 1 12 14a2 2 0 0 1-2-2a1.81 1.81 0 0 1 .07-.52ZM12 18c-3.18 0-6.17-2.29-7.9-6a12.09 12.09 0 0 1 2.7-3.79L8.57 10A4 4 0 0 0 14 15.43L15.59 17A7.24 7.24 0 0 1 12 18Z"
+                  ></path>
+                </svg></button
+            ></i>
+          </div>
+          <div id="error-service_password-message" class="error-message"></div>
+        </div>
+)rawliteral";
+
+// --- Part 2 of index_html9 ---
+static constexpr const char index_html9_part2[] PROGMEM = R"rawliteral(
         <div class="container">
           <button
             class="btn-process"
@@ -539,11 +617,19 @@ static constexpr const char index_html3[] PROGMEM = R"rawliteral(;
       const code_listener = document.getElementById("code");
       const ssid_listener = document.getElementById("ssid");
       const password_listener = document.getElementById("password");
+      // --- New Listeners ---
+      const username_listener = document.getElementById("username");
+      const service_password_listener = document.getElementById("service_password");
+
 
       form.addEventListener("submit", submitForm);
       code_listener.addEventListener("input", updateValue);
       ssid_listener.addEventListener("input", updateValue);
       password_listener.addEventListener("input", updateValue);
+      // --- New Event Listeners ---
+      username_listener.addEventListener("input", updateValue);
+      service_password_listener.addEventListener("input", updateValue);
+
 
       const title_logo = `)rawliteral";
 // SVG_LOGO
@@ -559,16 +645,7 @@ static constexpr const char index_html6[] PROGMEM =
     R"rawliteral(`;
       const title_info = `)rawliteral";
 // PROJECT_INFO
-static constexpr const char index_html7[] PROGMEM =
-    R"rawliteral(`;
-      const input_name_text = `)rawliteral";
-// INPUT_NAME
-static constexpr const char index_html8[] PROGMEM =
-    R"rawliteral(`;
-      const input_lenght = )rawliteral";
-// INPUT_LENGHT
-static constexpr const char index_html9[] PROGMEM =
-    R"rawliteral(;
+static constexpr const char index_html7[] PROGMEM = R"rawliteral(`;
       const connection_successful_text = `)rawliteral";
 // CONNECTION_SUCCESFUL
 static constexpr const char index_html10[] PROGMEM =
@@ -580,12 +657,20 @@ static constexpr const char index_html11[] PROGMEM =
       const reset_confirmation_text = `)rawliteral";
 // RESET_CONFIRMATION_TEXT
 
-static constexpr const char index_html12[] PROGMEM =
-    R"rawliteral(`;
-      const reset_show = )rawliteral";
+// --- New string for new JS consts ---
+static constexpr const char index_html12_new_consts[] PROGMEM =
+    R"rawliteral(
+      `; const username_text = `
+)rawliteral";
+// USERNAME_TEXT, SERVICE_PASSWORD_TEXT, SHOW_LOGIN_FIELDS will be injected by C++
+
+static constexpr const char index_html12[] PROGMEM = R"rawliteral(
+      `; const reset_show = 
+)rawliteral";
 // RESET_SHOW
 static constexpr const char index_html13[] PROGMEM =
-    R"rawliteral(;
+    R"rawliteral(
+;
     
       window.addEventListener("DOMContentLoaded", (event) => {
         document.getElementById("logo-container").innerHTML = title_logo;
@@ -598,6 +683,13 @@ static constexpr const char index_html13[] PROGMEM =
         codeInput.setAttribute("maxlength", input_lenght);
         codeInput.placeholder = input_name_text;
         document.getElementById("label-code").textContent = input_name_text;
+
+        // --- New Labels ---
+        document.getElementById("label-username").textContent = username_text;
+        document.getElementById("username").placeholder = username_text;
+        document.getElementById("label-service-password").textContent = service_password_text;
+        document.getElementById("service_password").placeholder = service_password_text;
+
 
         document.getElementById("copyright").textContent = footer_text;
 
@@ -633,7 +725,8 @@ static constexpr const char index_html13[] PROGMEM =
       }
 
       function resetErrors() {
-        ["submit", "code", "password", "ssid"].forEach((field) => {
+        // --- Added new fields ---
+        ["submit", "code", "password", "ssid", "username", "service_password"].forEach((field) => {
           showError(field, "", false);
         });
       }
@@ -669,12 +762,24 @@ static constexpr const char index_html13[] PROGMEM =
                 return `${input_name_text} is required`;
               }
               if (code_listener.value.length > input_lenght) {
-                return `${input_name_text} can be up to ${input_lenght} characters`;
+                return `${input_name_text} can be up to ${input_lengH} characters`;
                }
               }
               return null;
             })(),
           },
+          // --- New Validations ---
+          {
+            condition: isLoginVisible() && !username_listener.value,
+            field: "username",
+            message: `${username_text} is required`,
+          },
+          {
+            condition: isLoginVisible() && !service_password_listener.value,
+            field: "service_password",
+            message: `${service_password_text} is required`,
+          },
+          // --- End New ---
           {
             condition: isSsidVisible() && !ssid_listener.value,
             field: "ssid",
@@ -720,6 +825,12 @@ static constexpr const char index_html13[] PROGMEM =
         if (isCodeVisible()) {
           payload.code = code_listener.value;
         }
+        
+        // --- Add new fields to payload ---
+        if (isLoginVisible()) {
+          payload.username = username_listener.value;
+          payload.service_password = service_password_listener.value;
+        }
 
         fetch("/configure", {
           method: "POST",
@@ -763,7 +874,7 @@ static constexpr const char index_html13[] PROGMEM =
         card.innerHTML = "";
         card.innerHTML = `
        <div class="wrapper">
-          <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"> <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/> <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg>
+          <svg class="checkmark" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" viewBox="0 0 52 52"> <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/> <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg>
        </div>
        <div class="container" style="padding: 1rem;">
          <h2 style="color:#7ac142;word-break: break-word;">Success</h2>
@@ -820,6 +931,7 @@ static constexpr const char index_html13[] PROGMEM =
               addTableRow(ssid, authmode, rssi)
             );
             showcodeField(jsonResponse.show_code);
+            showLoginFields(jsonResponse.show_login); // --- New ---
           })
           .catch(() => {
             console.error("Error on Refresh");
@@ -841,7 +953,7 @@ static constexpr const char index_html13[] PROGMEM =
            </td>
            <td>${ssid}</td>
            <td class="signal">
-             <svg xmlns="http://www.w3.org/2000/svg" style="vertical-align: -0.125em;" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><path fill="var(--font-color)" ${icon}
+             <svg xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" style="vertical-align: -0.125em;" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><path fill="var(--font-color)" ${icon}
            </td>
        </tr>
        `;
@@ -853,6 +965,16 @@ static constexpr const char index_html13[] PROGMEM =
         input.type = isPassword ? "text" : "password";
         document
           .getElementById("eye_icon")
+          .setAttribute("d", isPassword ? eye_open : eye_close);
+      }
+
+      // --- New function to toggle service password visibility ---
+      function toggleServicePassShow() {
+        const input = document.getElementById("service_password");
+        const isPassword = input.type === "password";
+        input.type = isPassword ? "text" : "password";
+        document
+          .getElementById("service_eye_icon")
           .setAttribute("d", isPassword ? eye_open : eye_close);
       }
 
@@ -873,6 +995,24 @@ static constexpr const char index_html13[] PROGMEM =
           ? ""
           : "none";
       }
+
+      // --- New functions to show/hide login fields ---
+      function showLoginFields(state) {
+        document.getElementById("loginFieldsBlock").style.display = state
+          ? ""
+          : "none";
+        document.getElementById("servicePasswordBlock").style.display = state
+          ? ""
+          : "none";
+      }
+
+      function isLoginVisible() {
+        return document.getElementById("loginFieldsBlock").style.display === ""
+          ? true
+          : false;
+      }
+      // --- End New ---
+
 
       function isHidden() {
         return document.getElementById("hiddennetwork_radio").checked;
@@ -978,7 +1118,7 @@ static constexpr const char index_html13[] PROGMEM =
             }
             factoryResetSection.innerHTML = `
                  <div class="wrapper">
-                   <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                   <svg class="checkmark" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" viewBox="0 0 52 52">
                      <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" />
                      <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
                    </svg>
@@ -1014,3 +1154,4 @@ static constexpr const char index_html13[] PROGMEM =
 )rawliteral";
 
 #endif // PROVISION_HTML_H
+

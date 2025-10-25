@@ -24,6 +24,11 @@ public:
     int INPUT_LENGTH;                    // Length for additional input field
     bool SHOW_INPUT_FIELD;               // Whether to show an input field
     bool SHOW_RESET_FIELD;               // Whether to show a reset field
+    
+    // --- New Fields Added ---
+    const char *USERNAME_TEXT;           // Text for username field
+    const char *SERVICE_PASSWORD_TEXT;   // Text for service password field
+    bool SHOW_LOGIN_FIELDS;              // Whether to show login fields
 
     Config(
         const char *apName = "ESP32 Wi-Fi Provisioning",
@@ -44,13 +49,19 @@ public:
             "Your device is now provisioned and ready to use.",
         const char *resetConfirmationText = "This process cannot be undone.",
         const char *inputText = "Device Key", int inputLength = 4,
-        bool showInputField = false, bool showResetField = true);
+        bool showInputField = false, bool showResetField = true,
+        // --- New Params Added ---
+        const char *usernameText = "Username",
+        const char *servicePasswordText = "Password",
+        bool showLoginFields = false
+      );
   };
 
   using ProvisionCallback = std::function<void()>;
   using InputCheckCallback = std::function<bool(const char *)>;
+  // --- Updated SuccessCallback Signature ---
   using SuccessCallback =
-      std::function<void(const char *, const char *, const char *)>;
+      std::function<void(const char *, const char *, const char *, const char *, const char *)>;
   using FactoryResetCallback = std::function<void()>;
 
   explicit WiFiProvisioner(const Config &config = Config());

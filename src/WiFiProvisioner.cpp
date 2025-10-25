@@ -80,11 +80,11 @@ int convertRRSItoLevel(int rssi) {
  * be stored. The document will contain an array of networks, each represented
  * as a JSON object with the following keys:
  *
- *            - `ssid`: The network SSID (string).
+ * - `ssid`: The network SSID (string).
  *
- *            - `rssi`: The signal strength level (integer, 0 to 4).
+ * - `rssi`: The signal strength level (integer, 0 to 4).
  *
- *            - `authmode`: The authentication mode (0 for open, 1 for secured).
+ * - `authmode`: The authentication mode (0 for open, 1 for secured).
  */
 void networkScan(JsonDocument &doc) {
   JsonArray networks = doc["network"].to<JsonArray>();
@@ -212,22 +212,21 @@ void sendHeader(WiFiClient &client, int statusCode, const char *contentType,
  *     "Custom Key", 10, true, false);
  * ```
  */
-WiFiProvisioner::Config::Config(const char *apName, const char *htmlTitle,
                                 const char *themeColor, const char *svgLogo,
                                 const char *projectTitle,
                                 const char *projectSubTitle,
                                 const char *projectInfo, const char *footerText,
-                                const char *connectionSuccessful,
                                 const char *resetConfirmationText,
-                                const char *inputText, int inputLength,
-                                bool showInputField, bool showResetField)
+    const char *projectInfo, const char *footerText,
+    const char *connectionSuccessful, const char *resetConfirmationText,
+    const char *inputText, int inputLength, bool showInputField,
     : AP_NAME(apName), HTML_TITLE(htmlTitle), THEME_COLOR(themeColor),
       SVG_LOGO(svgLogo), PROJECT_TITLE(projectTitle),
       PROJECT_SUB_TITLE(projectSubTitle), PROJECT_INFO(projectInfo),
       FOOTER_TEXT(footerText), CONNECTION_SUCCESSFUL(connectionSuccessful),
       RESET_CONFIRMATION_TEXT(resetConfirmationText), INPUT_TEXT(inputText),
       INPUT_LENGTH(inputLength), SHOW_INPUT_FIELD(showInputField),
-      SHOW_RESET_FIELD(showResetField) {}
+      SHOW_LOGIN_FIELDS(showLoginFields) {}
 
 /**
  * @brief Constructs a new `WiFiProvisioner` instance with the specified
@@ -305,8 +304,7 @@ WiFiProvisioner::Config &WiFiProvisioner::getConfig() { return _config; }
  * @brief Releases resources allocated during the provisioning process.
  *
  * This method stops the web server, DNS server, and resets the Wi-Fi mode to
- * `WIFI_STA`. It is called to clean up resources once the provisioning process
- * is complete or aborted.
+... (rest of comment)
  */
 void WiFiProvisioner::releaseResources() {
   _serverLoopFlag = false;
@@ -489,6 +487,7 @@ WiFiProvisioner &WiFiProvisioner::onProvision(ProvisionCallback callback) {
  * ```
  * provisioner.onInputCheck([](const char* input) -> bool {
  *     return strcmp(input, "1234") == 0; // Validate the input
+ * return strcmp(input, "1234") == 0; // Validate the input
  * });
  * ```
  */
@@ -572,12 +571,14 @@ WiFiProvisioner &WiFiProvisioner::onSuccess(SuccessCallback callback) {
  * Wi-Fi provisioning configuration.
  *
  */
+// --- Updated handleRootRequest ---
 void WiFiProvisioner::handleRootRequest() {
   if (provisionCallback) {
     provisionCallback();
   }
 
   const char *showResetField = _config.SHOW_RESET_FIELD ? "true" : "false";
+  const char *showLoginFields = _config.SHOW_LOGIN_FIELDS ? "true" : "false"; // New
 
   char inputLengthStr[12];
   snprintf(inputLengthStr, sizeof(inputLengthStr), "%d", _config.INPUT_LENGTH);
@@ -590,11 +591,19 @@ void WiFiProvisioner::handleRootRequest() {
       strlen(_config.PROJECT_SUB_TITLE) + strlen_P(index_html6) +
       strlen(_config.PROJECT_INFO) + strlen_P(index_html7) +
       strlen(_config.INPUT_TEXT) + strlen_P(index_html8) +
-      strlen(inputLengthStr) + strlen_P(index_html9) +
+      strlen(inputLengthStr) + strlen_P(index_html9_part1) + // Modified
+      strlen_P(index_html9_username_block) +                 // New
+      strlen_P(index_html9_service_password_block) +         // New
+      strlen_P(index_html9_part2) +                          // Modified
       strlen(_config.CONNECTION_SUCCESSFUL) + strlen_P(index_html10) +
       strlen(_config.FOOTER_TEXT) + strlen_P(index_html11) +
-      strlen(_config.RESET_CONFIRMATION_TEXT) + strlen_P(index_html12) +
-      strlen(showResetField) + strlen_P(index_html13);
+      strlen(_config.RESET_CONFIRMATION_TEXT) +
+      strlen_P(index_html12_new_consts) + // New
+      strlen(_config.USERNAME_TEXT) +     // New
+      strlen(_config.SERVICE_PASSWORD_TEXT) + // New
+      strlen(showLoginFields) +               // New
+      strlen_P(index_html12) + strlen(showResetField) +
+      strlen_P(index_html13);
 
   WIFI_PROVISIONER_DEBUG_LOG(WIFI_PROVISIONER_LOG_INFO,
                              "Calculated Content Length: %zu", contentLength);
@@ -618,12 +627,27 @@ void WiFiProvisioner::handleRootRequest() {
   client.print(_config.INPUT_TEXT);
   client.write_P(index_html8, strlen_P(index_html8));
   client.print(inputLengthStr);
-  client.write_P(index_html9, strlen_P(index_html9));
+  client.write_P(index_html9_part1, strlen_P(index_html9_part1)); // Modified
+  client.write_P(index_html9_username_block,
+                 strlen_P(index_html9_username_block)); // New
+  client.write_P(index_html9_service_password_block,
+                 strlen_P(index_html9_service_password_block));   // New
+  client.write_P(index_html9_part2, strlen_P(index_html9_part2)); // Modified
   client.print(_config.CONNECTION_SUCCESSFUL);
   client.write_P(index_html10, strlen_P(index_html10));
   client.print(_config.FOOTER_TEXT);
   client.write_P(index_html11, strlen_P(index_html11));
   client.print(_config.RESET_CONFIRMATION_TEXT);
+  
+  // --- New JS Consts ---
+  client.write_P(index_html12_new_consts, strlen_P(index_html12_new_consts));
+  client.print(_config.USERNAME_TEXT);
+  client.print("`; const service_password_text = `");
+  client.print(_config.SERVICE_PASSWORD_TEXT);
+  client.print("`; const show_login_fields = ");
+  client.print(showLoginFields);
+  // --- End New ---
+
   client.write_P(index_html12, strlen_P(index_html12));
   client.print(showResetField);
   client.write_P(index_html13, strlen_P(index_html13));
@@ -657,10 +681,12 @@ void WiFiProvisioner::handleRootRequest() {
  *   - `0`: Open (no password required)
  *   - `1`: Secured (password required)
  */
+// --- Updated handleUpdateRequest ---
 void WiFiProvisioner::handleUpdateRequest() {
   JsonDocument doc;
 
   doc["show_code"] = _config.SHOW_INPUT_FIELD;
+  doc["show_login"] = _config.SHOW_LOGIN_FIELDS; // New
   networkScan(doc);
 
   WiFiClient client = _server->client();
@@ -694,12 +720,15 @@ void WiFiProvisioner::handleUpdateRequest() {
  * Example JSON Payload:
  * ```
  * {
- *   "ssid": "MyNetwork",
- *   "password": "securepassword",
- *   "code": "1234"
+ * "ssid": "MyNetwork",
+ * "password": "securepassword",
+ * "code": "1234",
+ * "username": "myuser",
+ * "service_password": "myservicepass"
  * }
  * ```
  */
+// --- Updated handleConfigureRequest ---
 void WiFiProvisioner::handleConfigureRequest() {
   if (!_server->hasArg("plain")) {
     WIFI_PROVISIONER_DEBUG_LOG(WIFI_PROVISIONER_LOG_WARN,
@@ -720,11 +749,14 @@ void WiFiProvisioner::handleConfigureRequest() {
   const char *ssid_connect = doc["ssid"];
   const char *pass_connect = doc["password"];
   const char *input_connect = doc["code"];
+  const char *username_connect = doc["username"];         // New
+  const char *service_pass_connect = doc["service_password"]; // New
 
   WIFI_PROVISIONER_DEBUG_LOG(
-      WIFI_PROVISIONER_LOG_INFO, "SSID: %s, PASSWORD: %s, INPUT: %s",
+      WIFI_PROVISIONER_LOG_INFO, "SSID: %s, PASSWORD: %s, INPUT: %s, USER: %s, SRV_PASS: %s",
       ssid_connect ? ssid_connect : "", pass_connect ? pass_connect : "",
-      input_connect ? input_connect : "");
+      input_connect ? input_connect : "", username_connect ? username_connect : "",
+      service_pass_connect ? service_pass_connect : ""); // Modified
 
   if (!ssid_connect) {
     WIFI_PROVISIONER_DEBUG_LOG(WIFI_PROVISIONER_LOG_WARN,
@@ -752,10 +784,15 @@ void WiFiProvisioner::handleConfigureRequest() {
     return;
   }
 
+  // Note: You might want to add a separate callback for login validation here.
+  // For this example, we just pass the values on success.
+
   handleSuccesfulConnection();
 
   if (onSuccessCallback) {
-    onSuccessCallback(ssid_connect, pass_connect, input_connect);
+    // --- Updated onSuccessCallback call ---
+    onSuccessCallback(ssid_connect, pass_connect, input_connect,
+                      username_connect, service_pass_connect);
   }
 
   // Show success page for a while before closing the server
