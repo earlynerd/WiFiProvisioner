@@ -212,20 +212,22 @@ void sendHeader(WiFiClient &client, int statusCode, const char *contentType,
  *     "Custom Key", 10, true, false);
  * ```
  */
-                                const char *themeColor, const char *svgLogo,
-                                const char *projectTitle,
-                                const char *projectSubTitle,
-                                const char *projectInfo, const char *footerText,
-                                const char *resetConfirmationText,
+WiFiProvisioner::Config::Config(
+    const char *apName, const char *htmlTitle, const char *themeColor,
+    const char *svgLogo, const char *projectTitle, const char *projectSubTitle,
     const char *projectInfo, const char *footerText,
     const char *connectionSuccessful, const char *resetConfirmationText,
     const char *inputText, int inputLength, bool showInputField,
+    bool showResetField, const char *usernameText,
+    const char *servicePasswordText, bool showLoginFields)
     : AP_NAME(apName), HTML_TITLE(htmlTitle), THEME_COLOR(themeColor),
       SVG_LOGO(svgLogo), PROJECT_TITLE(projectTitle),
       PROJECT_SUB_TITLE(projectSubTitle), PROJECT_INFO(projectInfo),
       FOOTER_TEXT(footerText), CONNECTION_SUCCESSFUL(connectionSuccessful),
       RESET_CONFIRMATION_TEXT(resetConfirmationText), INPUT_TEXT(inputText),
       INPUT_LENGTH(inputLength), SHOW_INPUT_FIELD(showInputField),
+      SHOW_RESET_FIELD(showResetField), USERNAME_TEXT(usernameText),
+      SERVICE_PASSWORD_TEXT(servicePasswordText),
       SHOW_LOGIN_FIELDS(showLoginFields) {}
 
 /**
@@ -651,7 +653,7 @@ void WiFiProvisioner::handleRootRequest() {
   client.write_P(index_html12, strlen_P(index_html12));
   client.print(showResetField);
   client.write_P(index_html13, strlen_P(index_html13));
-  client.clear();
+  client.flush();
   client.stop();
 }
 
@@ -693,7 +695,7 @@ void WiFiProvisioner::handleUpdateRequest() {
   sendHeader(client, 200, "application/json", measureJson(doc));
   serializeJson(doc, client);
 
-  client.clear();
+  client.flush();
   client.stop();
 }
 
@@ -854,7 +856,7 @@ void WiFiProvisioner::sendBadRequestResponse() {
   WIFI_PROVISIONER_DEBUG_LOG(WIFI_PROVISIONER_LOG_WARN,
                              "Sent 400 Bad Request response to client");
 
-  client.clear();
+  client.flush();
   client.stop();
 }
 
@@ -871,7 +873,7 @@ void WiFiProvisioner::handleSuccesfulConnection() {
   sendHeader(client, 200, "application/json", measureJson(doc));
 
   serializeJson(doc, client);
-  client.clear();
+  client.flush();
   client.stop();
 }
 
@@ -891,7 +893,7 @@ void WiFiProvisioner::handleUnsuccessfulConnection(const char *reason) {
   sendHeader(client, 200, "application/json", measureJson(doc));
 
   serializeJson(doc, client);
-  client.clear();
+  client.flush();
   client.stop();
 
   WiFi.disconnect(false, true);
@@ -916,6 +918,6 @@ void WiFiProvisioner::handleResetRequest() {
 
   sendHeader(client, 200, "text/html", 0);
 
-  client.clear();
+  client.flush();
   client.stop();
 }
