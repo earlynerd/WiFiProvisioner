@@ -87,7 +87,7 @@ private:
   void sendBadRequestResponse();
   void handleSuccesfulConnection();
   void handleUnsuccessfulConnection(const char *reason);
-
+  void handleFaviconRequest();
   ProvisionCallback provisionCallback;
   InputCheckCallback inputCheckCallback;
   SuccessCallback onSuccessCallback;
